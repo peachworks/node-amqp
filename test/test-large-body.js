@@ -5,13 +5,7 @@
 require('./harness').run();
 
 var recvCount = 0;
-var bodySize = 256000;
-var body = new Buffer(bodySize);
-
-// Fill with random bytes
-for (var i = 0; i < bodySize; i++ ){
-  body[i] = Math.floor(Math.random()*256);
-}
+var body = new Buffer(100 * 1024);
 
 connection.addListener('ready', function () {
   puts("connected to " + connection.serverProperties.product);
@@ -37,11 +31,11 @@ connection.addListener('ready', function () {
             assert.equal('application/octet-stream', m.contentType);
 
             var chunks = [];
-            m.addListener('data', function (d) { chunks.push(d); });
+            m.addListener('data', function (d) { chunks.push(d.toString()); });
 
             m.addListener('end', function () {
               recvCount++;
-              assert.equal(body.toString(), Buffer.concat(chunks).toString());
+              assert.equal(body.toString(), chunks.join(' '));
               m.acknowledge();
             });
           });
